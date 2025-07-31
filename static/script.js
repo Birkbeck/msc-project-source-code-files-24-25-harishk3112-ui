@@ -5,6 +5,10 @@ document.getElementById("forecastDays").addEventListener("input", function () {
   document.getElementById("dayRangeLabel").innerText = `${this.value} Day(s)`;
 });
 
+function toggleDarkMode() {
+  document.body.classList.toggle("dark-mode");
+}
+
 function submitInput() {
   const size = document.getElementById("householdSize").value;
   const preference = document.getElementById("preference").value;
