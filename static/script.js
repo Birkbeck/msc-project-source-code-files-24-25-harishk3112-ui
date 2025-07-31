@@ -1,4 +1,5 @@
-
+let forecastChart, historyChart;
+let latestData = {};
 
 document.getElementById("forecastDays").addEventListener("input", function () {
   document.getElementById("dayRangeLabel").innerText = `${this.value} Day(s)`;
@@ -18,4 +19,31 @@ function submitInput() {
     "inputData",
     JSON.stringify({ size, preference, peakRaw, forecastDays })
   );
+}
+
+
+function renderChart(labels, data, canvasId, chartInstance) {
+  if (chartInstance) chartInstance.destroy();
+  const ctx = document.getElementById(canvasId).getContext("2d");
+  new Chart(ctx, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "kW Consumption",
+          data,
+          borderColor: "#007bff",
+          backgroundColor: "rgba(0,123,255,0.1)",
+          fill: true,
+          tension: 0.4,
+          pointRadius: 4,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      scales: { y: { beginAtZero: true } },
+    },
+  });
 }
