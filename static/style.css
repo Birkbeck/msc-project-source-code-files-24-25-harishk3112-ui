@@ -24,3 +24,7 @@
 body {
   transition: background 0.3s, color 0.3s;
 }
+
+input[type="range"] {
+  accent-color: #0d6efd;
+}
