@@ -106,3 +106,20 @@ function downloadCSV() {
   a.click();
   URL.revokeObjectURL(url);
 }
+const saved = JSON.parse(localStorage.getItem("inputData") || "{}");
+if (saved.size) document.getElementById("householdSize").value = saved.size;
+if (saved.preference)
+  document.getElementById("preference").value = saved.preference;
+if (saved.peakRaw) document.getElementById("peakHours").value = saved.peakRaw;
+if (saved.forecastDays) {
+  document.getElementById("forecastDays").value = saved.forecastDays;
+  document.getElementById(
+    "dayRangeLabel"
+  ).innerText = `${saved.forecastDays} Day(s)`;
+}
+document.getElementById("forecastDays").addEventListener("input", function () {
+  const label = document.getElementById("dayRangeLabel");
+  label.innerText = this.value === "1" ? "1 Day" : `${this.value} Days`;
+});
+
+submitInput();
