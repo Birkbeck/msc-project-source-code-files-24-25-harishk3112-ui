@@ -28,3 +28,7 @@ body {
 input[type="range"] {
   accent-color: #0d6efd;
 }
+
+#dayRangeLabel {
+  margin-left: 6px;
+}
