@@ -91,3 +91,18 @@ function renderChart(labels, data, canvasId, chartInstance) {
     },
   });
 }
+
+function downloadCSV() {
+  if (!latestData.values) return alert("No forecast data available");
+  const csv = [
+    "Hour,Predicted(kW)",
+    ...latestData.hours.map((h, i) => `${h},${latestData.values[i]}`),
+  ].join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "forecast.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+}
