@@ -25,6 +25,46 @@ function submitInput() {
   );
 }
 
+ document.getElementById("fullscreenLoader").classList.remove("d-none");
+
+  fetch("/predict", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      household_size: size,
+      preference,
+      peak_hours,
+      forecast_days: forecastDays,
+    }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      latestData = data;
+
+      renderChart(data.hours, data.values, "forecastChart", forecastChart);
+      renderChart(
+        Array.from({ length: 24 }, (_, i) => `Hour ${i + 1}`),
+        data.history,
+        "historyChart",
+        historyChart
+      );
+
+      forecastChart = Chart.getChart("forecastChart");
+      historyChart = Chart.getChart("historyChart");
+
+      document.getElementById("recommendation").textContent =
+        data.recommendation;
+      document.getElementById("recommendation").style.display = "block";
+
+      document.getElementById(
+        "summaryStats"
+      ).innerHTML = `Average: ${data.summary.avg} kW | Max: ${data.summary.max} kW | Min: ${data.summary.min} kW`;
+      document.getElementById("summaryStats").style.display = "block";
+
+      document.getElementById("fullscreenLoader").classList.add("d-none");
+    });
+
+
 
 function renderChart(labels, data, canvasId, chartInstance) {
   if (chartInstance) chartInstance.destroy();
