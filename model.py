@@ -24,3 +24,5 @@ def load_and_train_model():
     model_fit = model.fit()
 
     return model_fit, history
+
+model_fit, history_data = load_and_train_model()
