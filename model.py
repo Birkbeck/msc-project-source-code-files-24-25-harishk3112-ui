@@ -38,3 +38,9 @@ def get_forecast(user_input):
         scale = 1.3
     elif preference == "low":
         scale = 0.8
+
+    
+    steps = forecast_days * 24
+    forecast = model_fit.forecast(steps=steps)
+    forecast_scaled = forecast * household_size * scale
+    forecast_scaled = forecast_scaled.round(2)
