@@ -26,3 +26,9 @@ def load_and_train_model():
     return model_fit, history
 
 model_fit, history_data = load_and_train_model()
+
+def get_forecast(user_input):
+    forecast_days = int(user_input.get("forecast_days", 1))
+    household_size = int(user_input.get("household_size", 1))
+    preference = user_input.get("preference", "normal")
+    peak_hours = user_input.get("peak_hours", [])
