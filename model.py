@@ -11,3 +11,11 @@ def load_and_train_model():
                      infer_datetime_format=True,
                      low_memory=False,
                      na_values=['?'])
+
+    df.rename(columns={"Date_Time": "datetime"}, inplace=True)
+    df.set_index("datetime", inplace=True)
+    df["Global_active_power"] = pd.to_numeric(df["Global_active_power"], errors="coerce")
+    df.dropna(subset=["Global_active_power"], inplace=True)
+    df = df.resample("H").mean()
+
+    
