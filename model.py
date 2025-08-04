@@ -32,3 +32,9 @@ def get_forecast(user_input):
     household_size = int(user_input.get("household_size", 1))
     preference = user_input.get("preference", "normal")
     peak_hours = user_input.get("peak_hours", [])
+
+     scale = 1.0
+    if preference == "high":
+        scale = 1.3
+    elif preference == "low":
+        scale = 0.8
