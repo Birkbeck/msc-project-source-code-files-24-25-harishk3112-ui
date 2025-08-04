@@ -18,4 +18,9 @@ def load_and_train_model():
     df.dropna(subset=["Global_active_power"], inplace=True)
     df = df.resample("H").mean()
 
-    
+    history = df["Global_active_power"][-24:].round(2)
+
+    model = ARIMA(df["Global_active_power"], order=(2, 1, 2))
+    model_fit = model.fit()
+
+    return model_fit, history
