@@ -6,3 +6,12 @@ app = Flask(__name__)
 @app.route('/')
 def home():
     return render_template("index.html")
+
+@app.route('/predict', methods=['POST'])
+def predict():
+    user_input = request.json
+    forecast = get_forecast(user_input)
+    return jsonify(forecast)
+
+if __name__ == '__main__':
+    app.run(debug=True)
