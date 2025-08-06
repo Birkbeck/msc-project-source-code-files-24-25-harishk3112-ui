@@ -55,3 +55,14 @@ def get_forecast(user_input):
     elif preference == "low":
         rec = "Efficient usage detected. Continue minimizing consumption during peak hours."
 
+    return {
+        "hours": [f"Hour {i+1}" for i in range(steps)],
+        "values": forecast_scaled.tolist(),
+        "history": history_data.tolist(),
+        "recommendation": rec,
+        "summary": {
+            "avg": avg,
+            "max": max_val,
+            "min": min_val
+        }
+    }
