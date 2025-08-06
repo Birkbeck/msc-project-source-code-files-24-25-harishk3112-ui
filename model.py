@@ -48,3 +48,10 @@ def get_forecast(user_input):
     avg = round(forecast_scaled.mean(), 2)
     max_val = round(forecast_scaled.max(), 2)
     min_val = round(forecast_scaled.min(), 2)
+
+     rec = "You're doing great! Keep using energy efficiently."
+    if preference == "high" or avg > 4:
+        rec = "Your predicted usage is high. Try reducing usage during peak hours like 6PM–9PM."
+    elif preference == "low":
+        rec = "Efficient usage detected. Continue minimizing consumption during peak hours."
+
