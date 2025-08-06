@@ -44,3 +44,7 @@ def get_forecast(user_input):
     forecast = model_fit.forecast(steps=steps)
     forecast_scaled = forecast * household_size * scale
     forecast_scaled = forecast_scaled.round(2)
+
+    avg = round(forecast_scaled.mean(), 2)
+    max_val = round(forecast_scaled.max(), 2)
+    min_val = round(forecast_scaled.min(), 2)
