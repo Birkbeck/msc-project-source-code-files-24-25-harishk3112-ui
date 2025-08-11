@@ -7,6 +7,10 @@ app = Flask(__name__, static_folder="static", template_folder="templates")
 def healthz():
     return "ok", 200
 
+@app.route('/.well-known/<path:subpath>')
+def well_known(subpath):
+    return ('', 204)
+
 @app.route('/')
 def home():
     return render_template("index.html")
