@@ -23,9 +23,8 @@ function submitInput() {
     "inputData",
     JSON.stringify({ size, preference, peakRaw, forecastDays })
   );
-}
 
- document.getElementById("fullscreenLoader").classList.remove("d-none");
+  document.getElementById("fullscreenLoader").classList.remove("d-none");
 
   fetch("/predict", {
     method: "POST",
@@ -63,8 +62,7 @@ function submitInput() {
 
       document.getElementById("fullscreenLoader").classList.add("d-none");
     });
-
-
+}
 
 function renderChart(labels, data, canvasId, chartInstance) {
   if (chartInstance) chartInstance.destroy();
@@ -106,6 +104,7 @@ function downloadCSV() {
   a.click();
   URL.revokeObjectURL(url);
 }
+
 const saved = JSON.parse(localStorage.getItem("inputData") || "{}");
 if (saved.size) document.getElementById("householdSize").value = saved.size;
 if (saved.preference)
