@@ -87,3 +87,17 @@ def _make_supervised():
         X.append(X_all[i-SEQ_LEN:i, :])
         y.append(y_all[i])
     return np.array(X, dtype="float32"), np.array(y, dtype="float32")
+
+def _build_model(input_features):
+      """
+    Creates an LSTM model with two layers, dropout to avoid overfitting,
+    and a dense layer to predict energy use.
+    """
+    m = Sequential([
+        LSTM(64, return_sequences=True, input_shape=(SEQ_LEN, input_features)),
+        Dropout(0.2),
+        LSTM(32),
+        Dense(1)
+    ])
+    m.compile(optimizer="adam", loss="mse")
+    return m
