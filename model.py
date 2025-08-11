@@ -90,9 +90,9 @@ def _make_supervised():
     return np.array(X, dtype="float32"), np.array(y, dtype="float32")
 
 def _build_model(input_features):
-      """
+    """
     Creates an LSTM model with two layers, dropout to avoid overfitting,
-    and a dense layer to predict energy use.
+    and a dense layer to predict energy usage.
     """
     m = Sequential([
         LSTM(64, return_sequences=True, input_shape=(SEQ_LEN, input_features)),
@@ -131,31 +131,30 @@ def load_and_train_model():
 model_fit, history_data = load_and_train_model()
 
 def _future_feature_row(ts, last_24_vals):
-        """
+    """
     Creates future prediction features from a timestamp and
     the last 24 hours of power usage.
     """
     hour = ts.hour
-    dow  = ts.dayofweek
+    dow = ts.dayofweek
     row = {
-        "hour_sin": np.sin(2*np.pi*hour/24),
-        "hour_cos": np.cos(2*np.pi*hour/24),
-        "dow_sin":  np.sin(2*np.pi*dow/7),
-        "dow_cos":  np.cos(2*np.pi*dow/7),
-        "roll_mean_24": np.mean(last_24_vals) if len(last_24_vals)>0 else float(_series[-1,0]),
-        "roll_std_24":  float(np.std(last_24_vals)) if len(last_24_vals)>1 else 0.0,
+        "hour_sin": np.sin(2 * np.pi * hour / 24),
+        "hour_cos": np.cos(2 * np.pi * hour / 24),
+        "dow_sin": np.sin(2 * np.pi * dow / 7),
+        "dow_cos": np.cos(2 * np.pi * dow / 7),
+        "roll_mean_24": np.mean(last_24_vals) if len(last_24_vals) > 0 else float(_series[-1, 0]),
+        "roll_std_24": float(np.std(last_24_vals)) if len(last_24_vals) > 1 else 0.0,
     }
     return np.array([row[f] for f in FEATURES], dtype="float32")
 
-
-def _multi_step_forecast(steps:int)->np.ndarray:
-     """
+def _multi_step_forecast(steps: int) -> np.ndarray:
+    """
     Predicts energy use for several future hours.
     Starts with recent data, predicts the next value,
     adds it to the data, and repeats until all steps are done.
     """
     if _model is None or len(_df) <= SEQ_LEN:
-        last = float(_series[-1,0])
+        last = float(_series[-1, 0])
         return np.full(steps, last, dtype="float32")
 
     feat_scaled = x_scaler.transform(_df[FEATURES].values)
@@ -167,23 +166,24 @@ def _multi_step_forecast(steps:int)->np.ndarray:
     preds = []
     for _ in range(steps):
         x = np.expand_dims(np.array(window, dtype="float32"), axis=0)
-        yhat_scaled = _model.predict(x, verbose=0)[0,0]
-        yhat = float(y_scaler.inverse_transform([[yhat_scaled]])[0,0])
+        yhat_scaled = _model.predict(x, verbose=0)[0, 0]
+        yhat = float(y_scaler.inverse_transform([[yhat_scaled]])[0, 0])
 
         preds.append(yhat)
         tail.append(yhat)
 
         current_time = current_time + pd.Timedelta(hours=1)
         f_next = _future_feature_row(current_time, np.array(tail, dtype="float32"))
-        f_next_scaled = x_scaler.transform(f_next.reshape(1,-1))[0]
+        f_next_scaled = x_scaler.transform(f_next.reshape(1, -1))[0]
         window.append(f_next_scaled)
 
     preds = np.array(preds, dtype="float32")
     preds = np.maximum(preds, 0.0)
     return preds
 
+
 def get_forecast(user_input):
-      """
+    """
     Creates a forecast based on user settings.
     Adjusts predictions for household size and preference,
     then returns forecast values, history, tips, and summary stats.
@@ -193,14 +193,16 @@ def get_forecast(user_input):
     preference = user_input.get("preference", "normal")
 
     scale = 1.0
-    if preference == "high": scale = 1.3
-    elif preference == "low": scale = 0.8
+    if preference == "high":
+        scale = 1.3
+    elif preference == "low":
+        scale = 0.8
 
     steps = max(1, forecast_days * 24)
     base = _multi_step_forecast(steps)
 
     values = np.round(np.maximum(base * household_size * scale, 0.0), 2)
-    avg, mx, mn = map(lambda v: round(float(v),2), (values.mean(), values.max(), values.min()))
+    avg, mx, mn = map(lambda v: round(float(v), 2), (values.mean(), values.max(), values.min()))
     rec = "You're doing great! Keep using energy efficiently."
     if preference == "high" or avg > 4:
         rec = "Your predicted usage is high. Try reducing usage during peak hours like 6PM–9PM."
