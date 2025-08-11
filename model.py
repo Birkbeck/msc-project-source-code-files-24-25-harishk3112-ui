@@ -146,4 +146,39 @@ def _future_feature_row(ts, last_24_vals):
     }
     return np.array([row[f] for f in FEATURES], dtype="float32")
 
+
+def _multi_step_forecast(steps:int)->np.ndarray:
+     """
+    Predicts energy use for several future hours.
+    Starts with recent data, predicts the next value,
+    adds it to the data, and repeats until all steps are done.
+    """
+    if _model is None or len(_df) <= SEQ_LEN:
+        last = float(_series[-1,0])
+        return np.full(steps, last, dtype="float32")
+
+    feat_scaled = x_scaler.transform(_df[FEATURES].values)
+    window = deque(feat_scaled[-SEQ_LEN:], maxlen=SEQ_LEN)
+
+    tail = deque(_df["gap"].values[-24:].tolist(), maxlen=24)
+    current_time = _df.index[-1]
+
+    preds = []
+    for _ in range(steps):
+        x = np.expand_dims(np.array(window, dtype="float32"), axis=0)
+        yhat_scaled = _model.predict(x, verbose=0)[0,0]
+        yhat = float(y_scaler.inverse_transform([[yhat_scaled]])[0,0])
+
+        preds.append(yhat)
+        tail.append(yhat)
+
+        current_time = current_time + pd.Timedelta(hours=1)
+        f_next = _future_feature_row(current_time, np.array(tail, dtype="float32"))
+        f_next_scaled = x_scaler.transform(f_next.reshape(1,-1))[0]
+        window.append(f_next_scaled)
+
+    preds = np.array(preds, dtype="float32")
+    preds = np.maximum(preds, 0.0)
+    return preds
+
     
