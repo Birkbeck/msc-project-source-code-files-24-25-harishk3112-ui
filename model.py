@@ -101,3 +101,30 @@ def _build_model(input_features):
     ])
     m.compile(optimizer="adam", loss="mse")
     return m
+
+def load_and_train_model():
+    """
+Loads data, prepares it for training, and trains the LSTM model 
+if no saved model exists. Saves the best model for future use.
+"""
+    _load_series()
+    if len(_series) <= SEQ_LEN + 1:
+        return None, _history_last_24
+
+    X, y = _make_supervised()
+
+    global _model
+    if MODEL_PATH.exists():
+        _model = load_model(MODEL_PATH)
+        return _model, _history_last_24
+
+    _model = _build_model(X.shape[2])
+    cb = [
+        EarlyStopping(patience=4, restore_best_weights=True),
+        ModelCheckpoint(str(MODEL_PATH), save_best_only=True),
+    ]
+    _model.fit(X, y, epochs=14, batch_size=64, validation_split=0.1, shuffle=False, callbacks=cb, verbose=0)
+    _model.save(MODEL_PATH)
+    return _model, _history_last_24
+
+model_fit, history_data = load_and_train_model()
