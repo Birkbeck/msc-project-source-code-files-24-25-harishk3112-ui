@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, render_template, request
 from model import get_forecast
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="static", template_folder="templates")
 
 @app.route('/')
 def home():
