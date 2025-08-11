@@ -18,3 +18,8 @@ from pathlib import Path
 # Set sequence length for LSTM input and define path to save or load the model
 SEQ_LEN = 72            
 MODEL_PATH = Path("lstm_model.keras")
+
+# Setup empty model and scalers for features and target
+_model = None
+x_scaler = StandardScaler()
+y_scaler = StandardScaler()
