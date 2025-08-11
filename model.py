@@ -73,7 +73,7 @@ def _load_series():
 
 
 def _make_supervised():
-      """
+    """
     Converts the time series into supervised learning format by
     creating input sequences (X) of length SEQ_LEN and matching
     them with the next target value (y).
@@ -86,6 +86,7 @@ def _make_supervised():
     for i in range(SEQ_LEN, len(vals)):
         X.append(X_all[i-SEQ_LEN:i, :])
         y.append(y_all[i])
+
     return np.array(X, dtype="float32"), np.array(y, dtype="float32")
 
 def _build_model(input_features):
