@@ -33,10 +33,10 @@ _history_last_24 = None
 
 def _load_series():
     """
-Loads household power consumption data, parses datetime,
-creates time-based cyclical features, rolling statistics,
-and prepares features and target series for modeling.
-"""
+    Loads household power consumption data, parses datetime,
+    creates time-based cyclical features, rolling statistics,
+    and prepares features and target series for modeling.
+    """
 
     df = pd.read_csv(
         "data/household_power_consumption.txt",
@@ -104,9 +104,9 @@ def _build_model(input_features):
 
 def load_and_train_model():
     """
-Loads data, prepares it for training, and trains the LSTM model 
-if no saved model exists. Saves the best model for future use.
-"""
+    Loads data, prepares it for training, and trains the LSTM model 
+    if no saved model exists. Saves the best model for future use.
+    """
     _load_series()
     if len(_series) <= SEQ_LEN + 1:
         return None, _history_last_24
@@ -181,4 +181,35 @@ def _multi_step_forecast(steps:int)->np.ndarray:
     preds = np.maximum(preds, 0.0)
     return preds
 
-    
+def get_forecast(user_input):
+      """
+    Creates a forecast based on user settings.
+    Adjusts predictions for household size and preference,
+    then returns forecast values, history, tips, and summary stats.
+    """
+    forecast_days = int(user_input.get("forecast_days", 1))
+    household_size = float(user_input.get("household_size", 1))
+    preference = user_input.get("preference", "normal")
+
+    scale = 1.0
+    if preference == "high": scale = 1.3
+    elif preference == "low": scale = 0.8
+
+    steps = max(1, forecast_days * 24)
+    base = _multi_step_forecast(steps)
+
+    values = np.round(np.maximum(base * household_size * scale, 0.0), 2)
+    avg, mx, mn = map(lambda v: round(float(v),2), (values.mean(), values.max(), values.min()))
+    rec = "You're doing great! Keep using energy efficiently."
+    if preference == "high" or avg > 4:
+        rec = "Your predicted usage is high. Try reducing usage during peak hours like 6PM–9PM."
+    elif preference == "low":
+        rec = "Efficient usage detected. Continue minimizing consumption during peak hours."
+
+    return {
+        "hours": [f"Hour {i+1}" for i in range(steps)],
+        "values": values.tolist(),
+        "history": history_data.tolist(),
+        "recommendation": rec,
+        "summary": {"avg": avg, "max": mx, "min": mn}
+    }
