@@ -70,3 +70,20 @@ and prepares features and target series for modeling.
     _history_last_24 = df["gap"].astype("float32")[-24:].round(2)
     FEATURES = ["hour_sin","hour_cos","dow_sin","dow_cos","roll_mean_24","roll_std_24"]
     _df = df.astype("float32")
+
+
+def _make_supervised():
+      """
+    Converts the time series into supervised learning format by
+    creating input sequences (X) of length SEQ_LEN and matching
+    them with the next target value (y).
+    """
+    X, y = [], []
+    vals = _df.copy()
+    X_all = x_scaler.fit_transform(vals[FEATURES].values)
+    y_all = y_scaler.fit_transform(vals[["gap"]].values).ravel()
+
+    for i in range(SEQ_LEN, len(vals)):
+        X.append(X_all[i-SEQ_LEN:i, :])
+        y.append(y_all[i])
+    return np.array(X, dtype="float32"), np.array(y, dtype="float32")
