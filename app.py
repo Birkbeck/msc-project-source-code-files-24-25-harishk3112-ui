@@ -15,11 +15,14 @@ def well_known(subpath):
 def home():
     return render_template("index.html")
 
-@app.route('/predict', methods=['POST'])
+@app.route("/predict", methods=["POST"])
 def predict():
-    user_input = request.json
-    forecast = get_forecast(user_input)
-    return jsonify(forecast)
+    try:
+        user_input = request.get_json(force=True) or {}
+        forecast = get_forecast(user_input)
+        return jsonify(forecast), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
