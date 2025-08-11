@@ -23,3 +23,9 @@ MODEL_PATH = Path("lstm_model.keras")
 _model = None
 x_scaler = StandardScaler()
 y_scaler = StandardScaler()
+
+# Assigning variables for storing series data, dataframe, features, and last 24-hour history
+_series = None          
+_df = None              
+FEATURES = None         
+_history_last_24 = None
