@@ -128,3 +128,22 @@ if no saved model exists. Saves the best model for future use.
     return _model, _history_last_24
 
 model_fit, history_data = load_and_train_model()
+
+def _future_feature_row(ts, last_24_vals):
+        """
+    Creates future prediction features from a timestamp and
+    the last 24 hours of power usage.
+    """
+    hour = ts.hour
+    dow  = ts.dayofweek
+    row = {
+        "hour_sin": np.sin(2*np.pi*hour/24),
+        "hour_cos": np.cos(2*np.pi*hour/24),
+        "dow_sin":  np.sin(2*np.pi*dow/7),
+        "dow_cos":  np.cos(2*np.pi*dow/7),
+        "roll_mean_24": np.mean(last_24_vals) if len(last_24_vals)>0 else float(_series[-1,0]),
+        "roll_std_24":  float(np.std(last_24_vals)) if len(last_24_vals)>1 else 0.0,
+    }
+    return np.array([row[f] for f in FEATURES], dtype="float32")
+
+    
