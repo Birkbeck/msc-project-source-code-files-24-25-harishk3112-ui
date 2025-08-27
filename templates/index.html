@@ -5,14 +5,19 @@
     <title>Energy Forecast Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/png" href="/static/energy.png" />
+
+    <!-- Bootstrap -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <link rel="stylesheet" href="/static/style.css" />
   </head>
   <body class="bg-light">
+    <!-- Fullscreen Loader -->
     <div id="fullscreenLoader" class="fullscreen-loader d-none">
       <div
         class="spinner-border text-primary"
@@ -26,6 +31,7 @@
         <h2 class="mb-4">🔌 Energy Forecast Dashboard</h2>
       </div>
 
+      <!-- Controls Row -->
       <div class="row justify-content-center mb-4">
         <div class="col-md-10">
           <div
@@ -41,6 +47,7 @@
                 min="1"
               />
             </div>
+
             <div class="flex-fill">
               <label class="form-label">Usage Preference</label>
               <select id="preference" class="form-control">
@@ -49,6 +56,7 @@
                 <option value="low">Low Usage</option>
               </select>
             </div>
+
             <div class="flex-fill">
               <label class="form-label">Peak Hours (e.g. 18,19)</label>
               <input
@@ -58,9 +66,10 @@
                 placeholder="Comma-separated"
               />
             </div>
+
             <div class="flex-fill">
-              <label for="forecastDays" class="form-label"
-                >Days to Forecast:
+              <label for="forecastDays" class="form-label">
+                Days to Forecast:
                 <span id="dayRangeLabel" class="fw-bold text-primary"
                   >1 Day</span
                 >
@@ -79,6 +88,33 @@
               </div>
             </div>
           </div>
+          <div
+            class="d-flex gap-2 align-items-center mb-2 justify-content-center mt-3"
+          >
+            <label class="form-label mb-0">Eval window (hours)</label>
+            <select
+              id="evalWindow"
+              class="form-select form-select-sm"
+              style="width: 110px"
+            >
+              <option value="24">24</option>
+              <option value="72">72</option>
+              <option value="168" selected>168</option>
+            </select>
+            <label class="form-label mb-0 ms-3">Within ±%</label>
+            <input
+              id="withinPct"
+              type="number"
+              class="form-control form-control-sm"
+              value="10"
+              min="1"
+              max="50"
+              style="width: 90px"
+            />
+            <button class="btn btn-primary" onclick="refreshMetrics()">
+              Apply
+            </button>
+          </div>
 
           <div class="text-center mt-4">
             <button class="btn btn-primary px-5" onclick="submitInput()">
@@ -91,6 +127,7 @@
         </div>
       </div>
 
+      <!-- Summary & Recommendation -->
       <div
         id="summaryStats"
         class="alert alert-secondary"
@@ -102,16 +139,44 @@
         style="display: none"
       ></div>
 
+      <!-- Forecast -->
       <div class="card shadow mb-4">
         <div class="card-body">
           <h5>Predicted Energy Usage</h5>
           <canvas id="forecastChart"></canvas>
         </div>
       </div>
-      <div class="card shadow">
+
+      <!-- History -->
+      <div class="card shadow mb-4">
         <div class="card-body">
           <h5>Historical Energy Usage (Last 24 Hours)</h5>
           <canvas id="historyChart"></canvas>
+        </div>
+      </div>
+
+      <!-- NEW: Metrics Panel -->
+      <div id="metricsPanel" class="card shadow my-4" style="display: none">
+        <div class="card-body">
+          <h5 class="mb-3">Forecast Accuracy</h5>
+          <div id="metricsGrid" class="row g-3"></div>
+          <small class="text-muted d-block mt-2" id="metricsWindow"></small>
+        </div>
+      </div>
+
+      <!-- NEW: Residuals Chart -->
+      <div class="card shadow mb-4">
+        <div class="card-body">
+          <h5>Residuals (Actual − Predicted)</h5>
+          <canvas id="residualsChart"></canvas>
+        </div>
+      </div>
+
+      <!-- NEW: Training Summary -->
+      <div id="trainingPanel" class="card shadow my-4" style="display: none">
+        <div class="card-body">
+          <h5 class="mb-3">Training Summary</h5>
+          <pre id="trainingInfo" class="mb-0 small"></pre>
         </div>
       </div>
     </div>
