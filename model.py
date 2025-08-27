@@ -16,7 +16,7 @@ from tensorflow.keras.models import Sequential, load_model
 from tensorflow.keras.layers import LSTM, Dense, Dropout
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 
-# ----------------------- constants / globals -----------------------
+# constants / globals
 SEQ_LEN = 72
 MODEL_PATH = Path("lstm_model.keras")
 TRAIN_INFO_PATH = Path("train_info.json")
