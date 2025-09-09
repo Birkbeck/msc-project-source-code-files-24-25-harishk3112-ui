@@ -53,3 +53,51 @@ def load_and_train_model(order=(2, 1, 2)):
 
 # initialize (train once)
 model_fit, history_data = load_and_train_model()
+
+#  evaluation 
+def _backtest_recent_arima(n_hours=168, order=(2, 1, 2), within_pct=10.0):
+    """
+    Evaluate ARIMA on the last n_hours (one-shot predict over the window).
+    Returns dict: y_true, y_pred, residuals, metrics, start, end
+    """
+    df = _load_series()
+    if len(df) <= n_hours + 1:
+        return None
+
+    # Predict over the eval window using a model fitted on the whole series
+    # (fast baseline comparison; acceptable for reporting)
+    model = ARIMA(df["gap"], order=order).fit()
+
+    start_idx = len(df) - n_hours
+    y_pred = model.predict(start=start_idx, end=len(df) - 1)
+    y_pred = np.asarray(y_pred, dtype="float32")
+
+    y_true = df["gap"].iloc[start_idx:].astype("float32").values
+    residuals = y_true - y_pred
+
+    rmse = float(np.sqrt(mean_squared_error(y_true, y_pred)))
+    mae  = float(mean_absolute_error(y_true, y_pred))
+    mape = float(np.mean(np.where(y_true == 0, 0.0, np.abs((y_true - y_pred) / y_true))) * 100.0)
+    smape = _smape(y_true, y_pred)
+    r2    = float(r2_score(y_true, y_pred))
+    within = _pct_within(y_true, y_pred, pct=float(within_pct))
+
+    metrics = {
+        "RMSE": round(rmse, 3),
+        "MAE": round(mae, 3),
+        "MAPE_%": round(mape, 2),
+        "sMAPE_%": round(smape, 2),
+        "R2": round(r2, 3),
+        "Within10pct_%": round(within, 2),
+        "window_hours": int(n_hours),
+    }
+
+    return {
+        "y_true": y_true.tolist(),
+        "y_pred": y_pred.tolist(),
+        "residuals": residuals.tolist(),
+        "metrics": metrics,
+        "start": df.index[start_idx].isoformat(),
+        "end": df.index[-1].isoformat(),
+    }
+
