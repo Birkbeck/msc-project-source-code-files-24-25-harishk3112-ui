@@ -38,3 +38,18 @@ def _load_series():
     df = df.resample("H").mean()
     df = df.rename(columns={"Global_active_power": "gap"})  # align naming with other model
     return df
+
+#  train once 
+def load_and_train_model(order=(2, 1, 2)):
+    """
+    Fit ARIMA(order) on full hourly series.
+    Returns: model_fit, history_last_24 (for UI parity).
+    """
+    df = _load_series()
+    model = ARIMA(df["gap"], order=order)
+    model_fit = model.fit()
+    history = df["gap"][-24:].round(2)
+    return model_fit, history
+
+# initialize (train once)
+model_fit, history_data = load_and_train_model()
