@@ -64,3 +64,37 @@ def _print_row(row, headers, widths):
 def _divider(title):
     bar = "=" * 96
     print(f"\n{bar}\n{title}\n{bar}")
+
+    def compare_all(eval_windows=(24, 72, 168), within_pct=10.0, arima_order=(2, 1, 2)):
+    for n_hours in eval_windows:
+        # LSTM backtest
+        lstm_eval = lstm_mod._backtest_recent(n_hours=n_hours)
+        if lstm_eval is None:
+            # ensure trained/loaded, then retry
+            lstm_mod.load_and_train_model(n_runs=1)
+            lstm_eval = lstm_mod._backtest_recent(n_hours=n_hours)
+
+        # ARIMA backtest 
+        arima_eval = _call_arima_backtest(n_hours=n_hours, within_pct=within_pct, arima_order=arima_order)
+
+        _divider(f"Evaluation Window: Last {n_hours} hours  |  Within ±{within_pct}%")
+
+        if not lstm_eval or not arima_eval:
+            print("Comparison not available for this window (missing evaluation).")
+            continue
+
+        lstm_row = _flatten_metrics("LSTM", lstm_eval["metrics"])
+        arima_row = _flatten_metrics(f"ARIMA{arima_order}", arima_eval["metrics"])
+
+        headers = ["Model", "Window(h)", "RMSE", "MAE", "MAPE%", "sMAPE%", "R2", "Within±10%"]
+        widths = _widths([lstm_row, arima_row], headers)
+
+        _print_row({h: h for h in headers}, headers, widths)
+        _print_row({h: "-" * widths[h] for h in headers}, headers, widths)
+        _print_row(lstm_row, headers, widths)
+        _print_row(arima_row, headers, widths)
+
+
+if __name__ == "__main__":
+    # Runs all three windows in one go
+    compare_all(eval_windows=(24, 72, 168), within_pct=10.0, arima_order=(2, 1, 2))
