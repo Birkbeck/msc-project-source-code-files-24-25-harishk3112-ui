@@ -39,3 +39,28 @@ def _call_arima_backtest(n_hours, within_pct, arima_order=(2, 1, 2)):
         kwargs["pct"] = within_pct
 
     return fn(**kwargs)
+
+    def _flatten_metrics(tag, m):
+    return {
+        "Model": tag,
+        "Window(h)": m.get("window_hours"),
+        "RMSE": m.get("RMSE"),
+        "MAE": m.get("MAE"),
+        "MAPE%": m.get("MAPE_%"),
+        "sMAPE%": m.get("sMAPE_%"),
+        "R2": m.get("R2"),
+        "Within±10%": m.get("Within10pct_%"),
+    }
+
+
+def _widths(rows, headers):
+    return {h: max(len(str(h)), *(len(str(r[h])) for r in rows)) for h in headers}
+
+
+def _print_row(row, headers, widths):
+    print("  ".join(str(row[h]).ljust(widths[h]) for h in headers))
+
+
+def _divider(title):
+    bar = "=" * 96
+    print(f"\n{bar}\n{title}\n{bar}")
