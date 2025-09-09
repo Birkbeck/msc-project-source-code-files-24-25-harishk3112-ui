@@ -100,4 +100,55 @@ def _backtest_recent_arima(n_hours=168, order=(2, 1, 2), within_pct=10.0):
         "start": df.index[start_idx].isoformat(),
         "end": df.index[-1].isoformat(),
     }
+# forecast API 
+def get_forecast(user_input):
+    """
+   adds evaluation block with identical keys.
+      
+    """
+    forecast_days = int(user_input.get("forecast_days", 1))
+    household_size = float(user_input.get("household_size", 1))
+    preference = user_input.get("preference", "normal")
+
+    # optional evaluation controls 
+    eval_window_hours = int(user_input.get("eval_window_hours", 168))
+    within_pct = float(user_input.get("within_pct", 10.0))
+
+    scale = 1.0
+    if preference == "high":
+        scale = 1.3
+    elif preference == "low":
+        scale = 0.8
+
+    steps = max(1, forecast_days * 24)
+# use the -fitted model for forecasting
+    fc = model_fit.forecast(steps=steps)
+    forecast_scaled = (fc * household_size * scale).astype("float32")
+    forecast_scaled = np.round(forecast_scaled, 2)
+
+    avg = round(float(forecast_scaled.mean()), 2)
+    mx  = round(float(forecast_scaled.max()), 2)
+    mn  = round(float(forecast_scaled.min()), 2)
+
+    rec = "You're doing great! Keep using energy efficiently."
+    if preference == "high" or avg > 4:
+        rec = "Your predicted usage is high. Try reducing usage during peak hours like 6PM–9PM."
+    elif preference == "low":
+        rec = "Efficient usage detected. Continue minimizing consumption during peak hours."
+
+ # evaluation 
+    evaluation = _backtest_recent_arima(
+        n_hours=eval_window_hours,
+        order=(2, 1, 2),
+        within_pct=within_pct
+    )
+
+    return {
+        "hours": [f"Hour {i+1}" for i in range(steps)],
+        "values": forecast_scaled.tolist(),
+        "history": history_data.tolist(),
+        "recommendation": rec,
+        "summary": {"avg": avg, "max": mx, "min": mn},
+        "evaluation": evaluation
+    }
 
