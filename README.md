@@ -86,7 +86,6 @@ A user-friendly Flask + Chart.js dashboard provides interactive forecasts, evalu
 
 
 
-
 ## Project Information
 
 **Author :** **Harish Krishnakumar**
@@ -94,3 +93,10 @@ A user-friendly Flask + Chart.js dashboard provides interactive forecasts, evalu
 **MSc Advanced Computing(Data Analytics), Birkbeck,University of London**
 
 **Supervisor:**  **Prof. George Magoulas**
+
+
+
+# Declaration
+
+I Harish Krishnakumar declare that this project is my own work and that, except where acknowledged, all sources and assistance have been fully referenced. This project has been submitted as part of the requirements for the MSc Advanced Computing (Data Analytics Pathway) degree at Birkbeck, University of London, and has not been submitted for any other award.
+
